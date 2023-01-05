@@ -1,10 +1,10 @@
-import {useState, useEffect, useCallback} from 'react'
-import isBefore from 'date-fns/isBefore'
-import isAfter from 'date-fns/isAfter'
-import addDays from 'date-fns/addDays'
-import isWithinRange from 'date-fns/isWithinInterval'
-import isSameDay from 'date-fns/isSameDay'
-import isSameMonth from 'date-fns/isSameDay'
+import { useState, useEffect, useCallback } from "react";
+import isBefore from "date-fns/isBefore";
+import isAfter from "date-fns/isAfter";
+import addDays from "date-fns/addDays";
+import isWithinRange from "date-fns/isWithinInterval";
+import isSameDay from "date-fns/isSameDay";
+import isSameMonth from "date-fns/isSameDay";
 import {
   getInitialMonths,
   getNextActiveMonth,
@@ -16,36 +16,36 @@ import {
   canSelectRange,
   isDateHovered as isDateHoveredFn,
   isInUnavailableDates,
-} from './useDatepicker.utils'
+} from "./useDatepicker.utils";
 
-export const START_DATE = 'startDate'
-export const END_DATE = 'endDate'
+export const START_DATE = "startDate";
+export const END_DATE = "endDate";
 
-export type FocusedInput = 'startDate' | 'endDate' | null
+export type FocusedInput = "startDate" | "endDate" | null;
 
 export interface OnDatesChangeProps {
-  focusedInput: FocusedInput
-  startDate: Date | null
-  endDate: Date | null
+  focusedInput: FocusedInput;
+  startDate: Date | null;
+  endDate: Date | null;
 }
 
-export type FirstDayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6
+export type FirstDayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface UseDatepickerProps {
-  onDatesChange(data: OnDatesChangeProps): void
-  minBookingDate?: Date
-  maxBookingDate?: Date
-  startDate: Date | null
-  endDate: Date | null
-  focusedInput: FocusedInput
-  numberOfMonths?: number
-  minBookingDays?: number
-  exactMinBookingDays?: boolean
-  firstDayOfWeek?: FirstDayOfWeek
-  initialVisibleMonth?: Date
-  isDateBlocked?(date: Date): boolean
-  unavailableDates?: Date[]
-  changeActiveMonthOnSelect?: boolean
+  onDatesChange(data: OnDatesChangeProps): void;
+  minBookingDate?: Date;
+  maxBookingDate?: Date;
+  startDate: Date | null;
+  endDate: Date | null;
+  focusedInput: FocusedInput;
+  numberOfMonths?: number;
+  minBookingDays?: number;
+  exactMinBookingDays?: boolean;
+  firstDayOfWeek?: FirstDayOfWeek;
+  initialVisibleMonth?: Date;
+  isDateBlocked?(date: Date): boolean;
+  unavailableDates?: Date[];
+  changeActiveMonthOnSelect?: boolean;
 }
 
 export function useDatepicker({
@@ -67,45 +67,48 @@ export function useDatepicker({
   const [activeMonths, setActiveMonths] = useState(() =>
     startDate
       ? getInitialMonths(numberOfMonths, startDate)
-      : getInitialMonths(numberOfMonths, initialVisibleMonth || null),
-  )
-  const [hoveredDate, setHoveredDate] = useState<Date | null>(null)
-  const [focusedDate, setFocusedDate] = useState<Date | null>(startDate)
+      : getInitialMonths(numberOfMonths, initialVisibleMonth || null)
+  );
+  const [hoveredDate, setHoveredDate] = useState<Date | null>(null);
+  const [focusedDate, setFocusedDate] = useState<Date | null>(startDate);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       if (window.addEventListener) {
-        window.addEventListener('keydown', handleKeyDown)
+        window.addEventListener("keydown", handleKeyDown);
       }
     }
 
     return () => {
       if (window.removeEventListener) {
-        window.removeEventListener('keydown', handleKeyDown)
+        window.removeEventListener("keydown", handleKeyDown);
       }
-    }
-  })
+    };
+  });
 
   const disabledDatesByUser = (date: Date) => {
-    return isInUnavailableDates(unavailableDates, date) || isDateBlockedProps(date)
-  }
+    return (
+      isInUnavailableDates(unavailableDates, date) || isDateBlockedProps(date)
+    );
+  };
 
   const onDateFocus = (date: Date) => {
-    setFocusedDate(date)
+    setFocusedDate(date);
 
     if (!focusedDate || (focusedDate && !isSameMonth(date, focusedDate))) {
-      setActiveMonths(getInitialMonths(numberOfMonths, date))
+      setActiveMonths(getInitialMonths(numberOfMonths, date));
     }
-  }
+  };
 
-  const isDateSelected = (date: Date) => isDateSelectedFn(date, startDate, endDate)
+  const isDateSelected = (date: Date) =>
+    isDateSelectedFn(date, startDate, endDate);
 
   const isFirstOrLastSelectedDate = (date: Date) =>
-    isFirstOrLastSelectedDateFn(date, startDate, endDate)
+    isFirstOrLastSelectedDateFn(date, startDate, endDate);
 
-  const isStartDate = (date: Date) => isStartDateFn(date, startDate)
+  const isStartDate = (date: Date) => isStartDateFn(date, startDate);
 
-  const isEndDate = (date: Date) => isEndDateFn(date, endDate)
+  const isEndDate = (date: Date) => isEndDateFn(date, endDate);
 
   const isDateBlocked = (date: Date) =>
     isDateBlockedFn({
@@ -116,9 +119,10 @@ export function useDatepicker({
       endDate,
       minBookingDays,
       isDateBlockedFn: disabledDatesByUser,
-    })
+    });
 
-  const isDateFocused = (date: Date) => (focusedDate ? isSameDay(date, focusedDate) : false)
+  const isDateFocused = (date: Date) =>
+    focusedDate ? isSameDay(date, focusedDate) : false;
 
   const isDateHovered = (date: Date) =>
     isDateHoveredFn({
@@ -129,19 +133,19 @@ export function useDatepicker({
       minBookingDays,
       exactMinBookingDays,
       isDateBlocked: disabledDatesByUser,
-    })
+    });
 
   function handleKeyDown(e: KeyboardEvent) {
     if (
-      (e.key === 'ArrowRight' ||
-        e.key === 'ArrowLeft' ||
-        e.key === 'ArrowDown' ||
-        e.key === 'ArrowUp') &&
+      (e.key === "ArrowRight" ||
+        e.key === "ArrowLeft" ||
+        e.key === "ArrowDown" ||
+        e.key === "ArrowUp") &&
       !focusedDate
     ) {
-      const activeMonth = activeMonths[0]
-      onDateFocus(activeMonth.date)
-      setActiveMonths(getInitialMonths(numberOfMonths, activeMonth.date))
+      const activeMonth = activeMonths[0];
+      onDateFocus(activeMonth.date);
+      setActiveMonths(getInitialMonths(numberOfMonths, activeMonth.date));
     }
   }
 
@@ -150,7 +154,7 @@ export function useDatepicker({
       startDate: null,
       endDate: null,
       focusedInput: START_DATE,
-    })
+    });
   }
 
   function onDateSelect(date: Date) {
@@ -172,7 +176,7 @@ export function useDatepicker({
         startDate: date,
         endDate: addDays(date, minBookingDays - 1),
         focusedInput: null,
-      })
+      });
     } else if (
       ((focusedInput === END_DATE && startDate && isBefore(date, startDate)) ||
         (focusedInput === START_DATE && endDate && isAfter(date, endDate))) &&
@@ -188,17 +192,22 @@ export function useDatepicker({
         endDate: null,
         startDate: date,
         focusedInput: END_DATE,
-      })
+      });
     } else if (
       focusedInput === START_DATE &&
       !exactMinBookingDays &&
-      canSelectRange({minBookingDays, isDateBlocked: disabledDatesByUser, endDate, startDate: date})
+      canSelectRange({
+        minBookingDays,
+        isDateBlocked: disabledDatesByUser,
+        endDate,
+        startDate: date,
+      })
     ) {
       onDatesChange({
         endDate,
         startDate: date,
         focusedInput: END_DATE,
-      })
+      });
     } else if (
       focusedInput === START_DATE &&
       !exactMinBookingDays &&
@@ -213,19 +222,24 @@ export function useDatepicker({
         endDate: null,
         startDate: date,
         focusedInput: END_DATE,
-      })
+      });
     } else if (
       focusedInput === END_DATE &&
       startDate &&
       !isBefore(date, startDate) &&
       !exactMinBookingDays &&
-      canSelectRange({minBookingDays, isDateBlocked: disabledDatesByUser, startDate, endDate: date})
+      canSelectRange({
+        minBookingDays,
+        isDateBlocked: disabledDatesByUser,
+        startDate,
+        endDate: date,
+      })
     ) {
       onDatesChange({
         startDate,
         endDate: date,
         focusedInput: null,
-      })
+      });
     }
 
     if (
@@ -233,37 +247,38 @@ export function useDatepicker({
       (!focusedDate || (focusedDate && !isSameMonth(date, focusedDate))) &&
       changeActiveMonthOnSelect
     ) {
-      setActiveMonths(getInitialMonths(numberOfMonths, date))
+      setActiveMonths(getInitialMonths(numberOfMonths, date));
     }
   }
 
   function onDateHover(date: Date | null) {
     if (!date) {
-      setHoveredDate(null)
+      setHoveredDate(null);
     } else if (date) {
-      const isNotBlocked = !isDateBlocked(date) || (startDate && isSameDay(date, startDate))
+      const isNotBlocked =
+        !isDateBlocked(date) || (startDate && isSameDay(date, startDate));
       const isHoveredDateAfterOrEqualMinDate = minBookingDate
         ? !isBefore(date, addDays(minBookingDate, -1))
-        : true
+        : true;
       const isHoveredDateBeforeOrEqualMaxDate = maxBookingDate
         ? !isAfter(date, maxBookingDate)
-        : true
+        : true;
 
       // Exact minimal booking days
-      const potentialEndDate = addDays(date, minBookingDays - 1)
+      const potentialEndDate = addDays(date, minBookingDays - 1);
       const isPotentialEndDateAfterOrEqualMinDate = minBookingDate
         ? !isBefore(potentialEndDate, minBookingDate)
-        : true
+        : true;
       const isPotentialEndDateBeforeOrEqualMaxDate = maxBookingDate
         ? !isAfter(potentialEndDate, maxBookingDate)
-        : true
+        : true;
       const isExactAndInRange =
         exactMinBookingDays &&
         minBookingDays > 1 &&
         isHoveredDateAfterOrEqualMinDate &&
         isHoveredDateBeforeOrEqualMaxDate &&
         isPotentialEndDateAfterOrEqualMinDate &&
-        isPotentialEndDateBeforeOrEqualMaxDate
+        isPotentialEndDateBeforeOrEqualMaxDate;
 
       // Is date in range
       const isInRange =
@@ -271,71 +286,85 @@ export function useDatepicker({
         !endDate &&
         !exactMinBookingDays &&
         isHoveredDateAfterOrEqualMinDate &&
-        isHoveredDateBeforeOrEqualMaxDate
+        isHoveredDateBeforeOrEqualMaxDate;
 
       // Is start date hovered and in range
       const isMinBookingDaysInRange =
         minBookingDays > 1 && startDate
-          ? isWithinRange(date, {start: startDate, end: addDays(startDate, minBookingDays - 2)})
-          : true
+          ? isWithinRange(date, {
+              start: startDate,
+              end: addDays(startDate, minBookingDays - 2),
+            })
+          : true;
       const isStartDateHoveredAndInRange =
-        startDate && isSameDay(date, startDate) && isMinBookingDaysInRange
+        startDate && isSameDay(date, startDate) && isMinBookingDaysInRange;
 
-      if (isNotBlocked && (isExactAndInRange || isInRange || isStartDateHoveredAndInRange)) {
-        setHoveredDate(date)
+      if (
+        isNotBlocked &&
+        (isExactAndInRange || isInRange || isStartDateHoveredAndInRange)
+      ) {
+        setHoveredDate(date);
       } else if (hoveredDate !== null) {
-        setHoveredDate(null)
+        setHoveredDate(null);
       }
     }
   }
 
   const goToPreviousMonths = useCallback(() => {
-    setActiveMonths(getNextActiveMonth(activeMonths, numberOfMonths, -1))
-    setFocusedDate(null)
-  }, [activeMonths, numberOfMonths])
+    setActiveMonths(getNextActiveMonth(activeMonths, numberOfMonths, -1));
+    setFocusedDate(null);
+  }, [activeMonths, numberOfMonths]);
 
   const goToPreviousMonthsByOneMonth = useCallback(() => {
-    setActiveMonths(getNextActiveMonth(activeMonths, numberOfMonths, -1, 1))
-    setFocusedDate(null)
-  }, [activeMonths, numberOfMonths])
+    setActiveMonths(getNextActiveMonth(activeMonths, numberOfMonths, -1, 1));
+    setFocusedDate(null);
+  }, [activeMonths, numberOfMonths]);
 
   const goToNextMonths = useCallback(() => {
-    setActiveMonths(getNextActiveMonth(activeMonths, numberOfMonths, 1))
-    setFocusedDate(null)
-  }, [activeMonths, numberOfMonths])
+    setActiveMonths(getNextActiveMonth(activeMonths, numberOfMonths, 1));
+    setFocusedDate(null);
+  }, [activeMonths, numberOfMonths]);
 
   const goToNextMonthsByOneMonth = useCallback(() => {
-    setActiveMonths(getNextActiveMonth(activeMonths, numberOfMonths, 1, 1))
-    setFocusedDate(null)
-  }, [activeMonths, numberOfMonths])
+    setActiveMonths(getNextActiveMonth(activeMonths, numberOfMonths, 1, 1));
+    setFocusedDate(null);
+  }, [activeMonths, numberOfMonths]);
 
   const goToDate = useCallback(
     (date: Date) => {
-      setActiveMonths(getInitialMonths(numberOfMonths, date))
-      setFocusedDate(null)
+      setActiveMonths(getInitialMonths(numberOfMonths, date));
+      setFocusedDate(null);
     },
-    [numberOfMonths],
-  )
+    [numberOfMonths]
+  );
 
   const goToPreviousYear = useCallback(
     (numYears: number = 1) => {
       setActiveMonths(
-        getNextActiveMonth(activeMonths, numberOfMonths, -(numYears * 12 - numberOfMonths + 1)),
-      )
-      setFocusedDate(null)
+        getNextActiveMonth(
+          activeMonths,
+          numberOfMonths,
+          -(numYears * 12 - numberOfMonths + 1)
+        )
+      );
+      setFocusedDate(null);
     },
-    [activeMonths, numberOfMonths],
-  )
+    [activeMonths, numberOfMonths]
+  );
 
   const goToNextYear = useCallback(
     (numYears: number = 1) => {
       setActiveMonths(
-        getNextActiveMonth(activeMonths, numberOfMonths, numYears * 12 - numberOfMonths + 1),
-      )
-      setFocusedDate(null)
+        getNextActiveMonth(
+          activeMonths,
+          numberOfMonths,
+          numYears * 12 - numberOfMonths + 1
+        )
+      );
+      setFocusedDate(null);
     },
-    [activeMonths, numberOfMonths],
-  )
+    [activeMonths, numberOfMonths]
+  );
 
   return {
     firstDayOfWeek,
@@ -361,5 +390,5 @@ export function useDatepicker({
     goToDate,
     goToPreviousYear,
     goToNextYear,
-  }
+  };
 }

@@ -14,8 +14,8 @@ export const monthLabelFormatFn = (date: Date) => format(date, "MMMM yyyy");
 export interface UseMonthResultDays {
   dayLabel: string;
   date: Date;
-  outsideMonth: boolean;
-  type: string;
+  outsideMonth?: boolean;
+  type?: string;
 }
 
 export interface UseMonthResult {

@@ -1,6 +1,6 @@
 {
   "name": "react-daterangepicker-tz",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "main": "./dist/index.tsx",
   "types": "./dist/index.tsx",
   "license": "MIT",
