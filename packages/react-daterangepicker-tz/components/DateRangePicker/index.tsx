@@ -1,11 +1,27 @@
 /** @jsxRuntime classic */
 /** @jsx jsx */
-import { useMemo, useState } from "react";
+import { useState, Fragment } from "react";
 import { jsx } from "@emotion/react";
 import Month from "./Month";
 import DatepickerContext from "./datepickerContext";
-import { FocusedInput, START_DATE, useDatepicker } from "../../hooks/src";
+import {
+  END_DATE,
+  FocusedInput,
+  START_DATE,
+  useDatepicker,
+} from "../../hooks/src";
 import { createStyles } from "../../utils/createStyles";
+import { zeroPad } from "../../utils/utils";
+import Times from "./Times";
+
+const styles = createStyles({
+  datePicker: {
+    display: "grid",
+    margin: "32px 0 0",
+    gridTemplateColumns: `repeat(auto-fill, minmax(240px, 1fr))`,
+    gridGap: "0 32px",
+  },
+});
 
 interface DateRangePickerProps {
   startDate?: Date | null;
@@ -15,13 +31,22 @@ interface DateRangePickerProps {
   unavailableDates?: Date[];
   changeActiveMonthOnSelect?: boolean;
   showOutsideMonth?: boolean;
+  showTimeSelect?: boolean;
+  showSecond?: boolean;
   onChange: (data: any) => void;
+}
+
+export interface TimeChangeProps {
+  focusedInput: FocusedInput;
+  time: string;
 }
 
 function DateRangePicker({
   startDate = null,
   endDate = null,
   showOutsideMonth = true,
+  showTimeSelect = false,
+  showSecond = false,
   minBookingDate,
   maxBookingDate,
   unavailableDates = [],
@@ -71,14 +96,18 @@ function DateRangePicker({
     }
   }
 
-  const styles = useMemo(() => {
-    return createStyles({
-      display: "grid",
-      margin: "32px 0 0",
-      gridTemplateColumns: `repeat(auto-fill, minmax(240px, 1fr))`,
-      gridGap: "0 32px",
-    });
-  }, []);
+  function handleTimeChange({ focusedInput, time }: TimeChangeProps) {
+    const newState = { ...state };
+    const date =
+      focusedInput === START_DATE ? newState.startDate : newState.endDate;
+    const [hours, minutes, seconds] = time.split(":");
+    date?.setHours(parseInt(hours));
+    date?.setMinutes(parseInt(minutes));
+    date?.setSeconds(parseInt(seconds));
+    console.log("datedate", date);
+    setState(newState);
+    onChange(newState);
+  }
 
   console.log("DatePicker focusedInput", state.focusedInput);
 
@@ -98,19 +127,28 @@ function DateRangePicker({
         isEndDate,
       }}
     >
-      <div className="react-datepicker" css={styles}>
+      <div className="react-datepicker" css={styles.datePicker}>
         {activeMonths.map((month, i) => (
-          <Month
-            key={`${month.year}-${month.month}`}
-            year={month.year}
-            month={month.month}
-            firstDayOfWeek={firstDayOfWeek}
-            showPrev={i === 0}
-            showNext={i !== 0}
-            showOutsideMonth={showOutsideMonth}
-            goToPreviousMonths={goToPreviousMonths}
-            goToNextMonths={goToNextMonths}
-          />
+          <div key={`${month.year}-${month.month}`}>
+            <Month
+              year={month.year}
+              month={month.month}
+              firstDayOfWeek={firstDayOfWeek}
+              showPrev={i === 0}
+              showNext={i !== 0}
+              showOutsideMonth={showOutsideMonth}
+              goToPreviousMonths={goToPreviousMonths}
+              goToNextMonths={goToNextMonths}
+            />
+            {showTimeSelect && (
+              <Times
+                date={i === 0 ? state.startDate : state.endDate}
+                showSecond={showSecond}
+                focusedInput={i === 0 ? START_DATE : END_DATE}
+                onChange={handleTimeChange}
+              />
+            )}
+          </div>
         ))}
       </div>
     </DatepickerContext.Provider>
