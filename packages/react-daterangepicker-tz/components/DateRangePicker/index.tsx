@@ -1,6 +1,6 @@
 /** @jsxRuntime classic */
 /** @jsx jsx */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { jsx } from "@emotion/react";
 import classnames from "classnames";
 import Month from "./Month";
@@ -142,6 +142,18 @@ function DateRangePicker({
     end: getTimeFromDate(endDate),
   });
 
+  useEffect(() => {
+    setState({
+      startDate,
+      endDate,
+      focusedInput: START_DATE as FocusedInput,
+    });
+    setTimeState({
+      start: getTimeFromDate(startDate),
+      end: getTimeFromDate(endDate),
+    });
+  }, [endDate, startDate]);
+
   const {
     firstDayOfWeek,
     activeMonths,
@@ -175,14 +187,14 @@ function DateRangePicker({
       setTimeToDate({ date: newData.startDate, time: timeState.start });
       setTimeToDate({ date: newData.endDate, time: timeState.end });
       setState(newData);
-      if (autoApply) {
+      if (autoApply && onApply) {
         onApply(newData);
       }
     } else {
       setTimeToDate({ date: data.startDate, time: timeState.start });
       setTimeToDate({ date: data.endDate, time: timeState.end });
       setState(data);
-      if (autoApply) {
+      if (autoApply && onApply) {
         onApply(data);
       }
     }
@@ -202,7 +214,7 @@ function DateRangePicker({
     targetTime.seconds = seconds;
     targetTime.ampm = ampm;
     setState(newState);
-    if (autoApply) {
+    if (autoApply && onApply) {
       onApply(newState);
     }
     setTimeState(newTimeState);

@@ -1,3 +1,4 @@
+import { useCallback, useState } from "react";
 import {
   Calendar,
   DateRangeInput,
@@ -5,22 +6,41 @@ import {
 } from "react-daterangepicker-tz";
 
 export default function Web() {
+  const [dates, setDates] = useState({
+    startDate: null,
+    endDate: null,
+  });
+
+  const onApply = useCallback((data: any) => {
+    setDates({
+      startDate: data.startDate,
+      endDate: data.endDate,
+    });
+  }, []);
+
   return (
     <div>
       <h1>Web</h1>
       <Calendar />
       <div style={{ maxWidth: 600 }}>
         <DateRangePicker
-          startDate={new Date("Wed Mar 01 2023 00:00:00 GMT+0700")}
-          endDate={new Date("Sat Mar 11 2023 00:00:00 GMT+0700")}
+          startDate={dates.startDate}
+          endDate={dates.endDate}
           showTimeSelect
           showSecond
           onCancel={() => {}}
-          onApply={() => {}}
+          onApply={onApply}
+          autoApply
         />
       </div>
       <div>
-        <DateRangeInput />
+        <DateRangeInput
+          startDate={dates.startDate}
+          endDate={dates.endDate}
+          showTimeSelect
+          showSecond
+          onApply={onApply}
+        />
       </div>
     </div>
   );

@@ -1,14 +1,19 @@
 /** @jsxRuntime classic */
 /** @jsx jsx */
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { jsx } from "@emotion/react";
 import { useCallback } from "react";
 import { usePopper } from "react-popper";
 import DateRangePicker, { DateRangePickerProps } from "../DateRangePicker";
 import { useOnClickOutside } from "../../hooks/src";
 import { createStyles } from "../../utils/createStyles";
+import { formatDateString } from "../../utils/utils";
+import dayjs from "dayjs";
 
 const cssStyles = createStyles({
+  inputWrapper: {
+    width: "fit-content",
+  },
   tooltip: {
     background: "#fff",
     borderRadius: "4px",
@@ -55,17 +60,36 @@ const cssStyles = createStyles({
   },
 });
 
-interface DateRangeInputProps extends DateRangePickerProps {}
+interface DateRangeInputProps extends DateRangePickerProps {
+  width?: number | string;
+  CustomInput?: React.FunctionComponent<any>;
+  popperOptions?: object;
+}
 
 function DefaultInput({ ...rest }) {
-  return (
-    <div>
-      <input {...rest} />
-    </div>
-  );
+  return <input {...rest} />;
+}
+
+function getInputValue({
+  startDate,
+  endDate,
+  format,
+}: {
+  startDate: Date | null;
+  endDate: Date | null;
+  format: string;
+}) {
+  if (!dayjs(startDate).isValid() || !dayjs(endDate).isValid) {
+    return "";
+  }
+  return [
+    formatDateString({ date: startDate, format }),
+    formatDateString({ date: endDate, format }),
+  ].join(" - ");
 }
 
 function DateRangeInput({
+  width = 600,
   startDate = null,
   endDate = null,
   showOutsideMonth = true,
@@ -77,6 +101,10 @@ function DateRangeInput({
   changeActiveMonthOnSelect = true,
   format = "MM/DD/YYYY HH:mm:ss A",
   autoApply = false,
+  onApply,
+  onCancel,
+  CustomInput = DefaultInput,
+  popperOptions = {},
 }: DateRangeInputProps) {
   const [referenceElement, setReferenceElement] = useState(null);
   const [popperElement, setPopperElement] = useState(null);
@@ -92,24 +120,94 @@ function DateRangeInput({
         },
       },
     ],
+    ...popperOptions,
   });
   const ref = useRef(null);
 
-  const handleClickOutside = useCallback(() => {
-    setReferenceElement(null);
-  }, []);
+  const [state, setState] = useState({
+    startDate,
+    endDate,
+  });
+
+  const [inputValue, setInputValue] = useState(
+    getInputValue({ startDate, endDate, format })
+  );
+
+  useEffect(() => {
+    setState({ startDate, endDate });
+  }, [startDate, endDate]);
+
+  useEffect(() => {
+    setInputValue(getInputValue({ startDate, endDate, format }));
+  }, [startDate, endDate, format]);
+
+  const handleClickOutside = useCallback(
+    ({ isReset }) => {
+      setReferenceElement(null);
+      if (isReset) {
+        setState({ startDate, endDate });
+        setInputValue(getInputValue({ startDate, endDate, format }));
+      }
+    },
+    [endDate, format, startDate]
+  );
 
   const toggle = useCallback((e) => {
     setReferenceElement(e?.target);
   }, []);
 
-  useOnClickOutside(ref, handleClickOutside);
+  useOnClickOutside(ref, () => handleClickOutside({ isReset: true }));
+
+  const onChange = useCallback((e) => {
+    const { value } = e.target;
+    setInputValue(value);
+    if (value) {
+      const [start, end] = value.split(" - ");
+      if (start && end && dayjs(start).isValid() && dayjs(end).isValid()) {
+        setState({
+          startDate: new Date(start),
+          endDate: new Date(end),
+        });
+      }
+    }
+  }, []);
+
+  const handleCancel = useCallback(() => {
+    handleClickOutside({ isReset: true });
+    if (onCancel) {
+      onCancel();
+    }
+  }, [handleClickOutside, onCancel]);
+
+  const handleApply = useCallback(
+    (data) => {
+      if (onApply) {
+        onApply(data);
+        setInputValue(
+          getInputValue({
+            startDate: data.startDate,
+            endDate: data.endDate,
+            format,
+          })
+        );
+      }
+      handleClickOutside({ isReset: false });
+    },
+    [format, handleClickOutside, onApply]
+  );
 
   return (
-    <div ref={ref}>
-      <div>
-        <DefaultInput onClick={toggle} />
-      </div>
+    <div
+      ref={ref}
+      className="react-daterange-input__wrapper"
+      css={cssStyles.inputWrapper}
+    >
+      <CustomInput
+        className="react-daterange-input"
+        value={inputValue}
+        onClick={toggle}
+        onChange={onChange}
+      />
       {referenceElement && (
         <div
           className="react-daterange-input__tooltip"
@@ -118,10 +216,10 @@ function DateRangeInput({
           style={styles.popper}
           {...attributes.popper}
         >
-          <div style={{ width: 600 }}>
+          <div className="react-daterange-input__datepicker" style={{ width }}>
             <DateRangePicker
-              startDate={startDate}
-              endDate={endDate}
+              startDate={state.startDate}
+              endDate={state.endDate}
               showOutsideMonth={showOutsideMonth}
               showTimeSelect={showTimeSelect}
               showSecond={showSecond}
@@ -131,8 +229,8 @@ function DateRangeInput({
               changeActiveMonthOnSelect={changeActiveMonthOnSelect}
               format={format}
               autoApply={autoApply}
-              onCancel={() => {}}
-              onApply={() => {}}
+              onCancel={handleCancel}
+              onApply={handleApply}
             />
           </div>
           <div
