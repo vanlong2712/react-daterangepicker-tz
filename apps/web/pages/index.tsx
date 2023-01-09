@@ -1,4 +1,8 @@
-import { Calendar, DateRangePicker } from "react-daterangepicker-tz";
+import {
+  Calendar,
+  DateRangeInput,
+  DateRangePicker,
+} from "react-daterangepicker-tz";
 
 export default function Web() {
   return (
@@ -11,8 +15,12 @@ export default function Web() {
           endDate={new Date("Sat Mar 11 2023 00:00:00 GMT+0700")}
           showTimeSelect
           showSecond
-          onChange={() => {}}
+          onCancel={() => {}}
+          onApply={() => {}}
         />
+      </div>
+      <div>
+        <DateRangeInput />
       </div>
     </div>
   );

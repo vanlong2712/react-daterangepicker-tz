@@ -10,7 +10,7 @@ import { zeroPad } from "../../utils/utils";
 import classnames from "classnames";
 import { UseMonthResultDays } from "../../hooks/src/useMonth/useMonth";
 
-function Day({ dayLabel, date, outsideMonth, type }: UseMonthResultDays) {
+function Day({ dayLabel, date, outsideMonth }: UseMonthResultDays) {
   const dayRef = useRef(null);
   const {
     focusedDate,

@@ -33,6 +33,7 @@ import {
   OnDatesChangeProps,
 } from "./useDatepicker";
 import useDay from "./useDay";
+import useOnClickOutside from "./useOnClickOutside";
 
 export {
   useDay,
@@ -55,6 +56,7 @@ export {
   weekdayLabelFormat,
   monthLabelFormat,
   parseDate,
+  useOnClickOutside,
 };
 
 export type {

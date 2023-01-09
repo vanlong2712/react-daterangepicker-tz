@@ -2,11 +2,10 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/react";
 import { Fragment, useCallback } from "react";
-import { TimeChangeProps } from ".";
+import { TimeChangeProps, TimeProps } from ".";
 import { FocusedInput } from "../../hooks/src";
-import useTime from "../../hooks/src/useTime";
 import { createStyles } from "../../utils/createStyles";
-import { convertTime12to24, zeroPad } from "../../utils/utils";
+import { zeroPad } from "../../utils/utils";
 
 const styles = createStyles({
   times: {
@@ -26,40 +25,33 @@ const styles = createStyles({
   },
   disabled: {
     pointerEvents: "none",
-    opacity: 0.8,
+    opacity: 0.6,
   },
 });
 
 interface TimesProp {
+  time: TimeProps;
   date?: Date | null;
   showSecond?: boolean;
   focusedInput: FocusedInput;
   onChange: ({ focusedInput, time }: TimeChangeProps) => void;
 }
 
-function Times({ date, showSecond, focusedInput, onChange }: TimesProp) {
-  const { hour, minute, second, ampm } = useTime({ date });
-  console.log("date fo", focusedInput, date, { hour, minute, second, ampm });
+function Times({ time, date, showSecond, focusedInput, onChange }: TimesProp) {
+  const { hours, minutes, seconds, ampm } = time;
 
   const handleChange = useCallback(
     (e) => {
-      const timeObj: any = { hour, minute, second, ampm };
+      const timeObj: any = { hours, minutes, seconds, ampm };
       const name: string = e.target.name;
       const value: string = e.target.value;
-      console.log("name", name, value);
       timeObj[name] = name === "ampm" ? value : parseInt(value);
       onChange({
         focusedInput,
-        time: convertTime12to24(
-          `${[
-            zeroPad(timeObj.hour, 2),
-            zeroPad(timeObj.minute, 2),
-            zeroPad(timeObj.second, 2),
-          ].join(":")} ${timeObj.ampm}`
-        ),
+        time: timeObj,
       });
     },
-    [ampm, focusedInput, hour, minute, onChange, second]
+    [ampm, focusedInput, hours, minutes, onChange, seconds]
   );
 
   return (
@@ -70,8 +62,8 @@ function Times({ date, showSecond, focusedInput, onChange }: TimesProp) {
       <select
         className="react-datepicker__times-hour"
         css={styles.timeSelect}
-        value={zeroPad(hour, 2)}
-        name="hour"
+        value={zeroPad(hours, 2)}
+        name="hours"
         onChange={handleChange}
       >
         {Array(12)
@@ -84,8 +76,8 @@ function Times({ date, showSecond, focusedInput, onChange }: TimesProp) {
       <select
         className="react-datepicker__times-minutes"
         css={styles.timeSelect}
-        value={zeroPad(minute, 2)}
-        name="minute"
+        value={zeroPad(minutes, 2)}
+        name="minutes"
         onChange={handleChange}
       >
         {Array(60)
@@ -100,8 +92,8 @@ function Times({ date, showSecond, focusedInput, onChange }: TimesProp) {
           <select
             className="react-datepicker__times-minutes"
             css={styles.timeSelect}
-            value={zeroPad(second, 2)}
-            name="second"
+            value={zeroPad(seconds, 2)}
+            name="seconds"
             onChange={handleChange}
           >
             {Array(60)

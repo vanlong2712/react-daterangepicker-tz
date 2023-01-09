@@ -1,4 +1,4 @@
-import * as React from "react";
 import DateRangePicker from "./components/DateRangePicker";
+import DateRangeInput from "./components/DateRangeInput";
 export * from "./Calendar";
-export { DateRangePicker };
+export { DateRangePicker, DateRangeInput };
