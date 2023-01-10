@@ -1,6 +1,6 @@
 /** @jsxRuntime classic */
 /** @jsx jsx */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { jsx } from "@emotion/react";
 import { useCallback } from "react";
 import { usePopper } from "react-popper";
@@ -22,21 +22,37 @@ const cssStyles = createStyles({
     '&[data-popper-placement^="top"]': {
       "#react-daterange-input__arrow": {
         bottom: -4,
+        "&:before": {
+          borderBottom: `1px solid #ddd`,
+          borderRight: `1px solid #ddd`,
+        },
       },
     },
     '&[data-popper-placement^="bottom"]': {
       "#react-daterange-input__arrow": {
         top: -4,
+        "&:before": {
+          borderTop: `1px solid #ddd`,
+          borderLeft: `1px solid #ddd`,
+        },
       },
     },
     '&[data-popper-placement^="left"]': {
       "#react-daterange-input__arrow": {
         right: -4,
+        "&:before": {
+          borderTop: `1px solid #ddd`,
+          borderRight: `1px solid #ddd`,
+        },
       },
     },
     '&[data-popper-placement^="right"]': {
       "#react-daterange-input__arrow": {
         left: -4,
+        "&:before": {
+          borderBottom: `1px solid #ddd`,
+          borderLeft: `1px solid #ddd`,
+        },
       },
     },
   },
@@ -54,8 +70,6 @@ const cssStyles = createStyles({
       visibility: "visible",
       content: "''",
       transform: "rotate(45deg)",
-      borderTop: `1px solid #ddd`,
-      borderLeft: `1px solid #ddd`,
     },
   },
 });
@@ -205,6 +219,7 @@ function DateRangeInput({
       <CustomInput
         className="react-daterange-input"
         value={inputValue}
+        isfocused={!!referenceElement}
         onClick={toggle}
         onChange={onChange}
       />
