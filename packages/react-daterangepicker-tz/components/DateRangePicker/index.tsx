@@ -25,6 +25,9 @@ const styles = createStyles({
     gridTemplateColumns: `repeat(auto-fill, minmax(240px, 1fr))`,
     gridGap: "0 32px",
   },
+  calendar: {
+    padding: 8,
+  },
   calendarLeft: {
     padding: "8px 0 8px 8px",
   },
@@ -277,10 +280,14 @@ function DateRangePicker({
           <div
             key={`${month.year}-${month.month}`}
             className={classnames({
-              "react-datepicker__calendar-left": i === 0,
-              "react-datepicker__calendar-right": isSingleSelect || i === 1,
+              "react-datepicker__calendar-left": !isSingleSelect && i === 0,
+              "react-datepicker__calendar-right": !isSingleSelect && i === 1,
+              "react-datepicker__calendar": !!isSingleSelect,
             })}
-            css={i === 0 ? styles.calendarLeft : styles.calendarRight}
+            css={[
+              i === 0 ? styles.calendarLeft : styles.calendarRight,
+              isSingleSelect && styles.calendar,
+            ]}
           >
             <Month
               year={month.year}

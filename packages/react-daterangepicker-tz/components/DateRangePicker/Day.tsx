@@ -93,6 +93,11 @@ function Day({ dayLabel, date, outsideMonth }: UseMonthResultDays) {
         borderColor: "transparent",
         color: "#999",
       },
+      selected: {
+        "&:hover": {
+          backgroundColor: "#00aeef",
+        },
+      },
       selectedStart: {
         borderRadius: `4px 0 0 4px`,
       },
@@ -129,6 +134,7 @@ function Day({ dayLabel, date, outsideMonth }: UseMonthResultDays) {
       ref={dayRef}
       css={[
         styles.common,
+        (isDateStart || isDateEnd) && styles.selected,
         isDateStart && !isDateEnd && styles.selectedStart,
         !isDateStart && isDateEnd && styles.selectedEnd,
         outsideMonth && styles.outside,
