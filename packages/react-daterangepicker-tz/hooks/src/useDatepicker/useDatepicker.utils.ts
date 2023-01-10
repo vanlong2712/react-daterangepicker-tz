@@ -24,7 +24,13 @@ export function isDateSelected(
   endDate: Date | null
 ) {
   if (startDate && endDate) {
-    return isWithinRange(date, { start: startDate, end: endDate });
+    if (isSameDay(startDate, endDate)) {
+      if (isSameDay(date, startDate)) {
+        return true;
+      }
+    } else {
+      return isWithinRange(date, { start: startDate, end: endDate });
+    }
   }
 
   return false;

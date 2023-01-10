@@ -101,6 +101,7 @@ export interface DateRangePickerProps {
   showSecond?: boolean;
   format?: string;
   autoApply?: boolean;
+  isSingleSelect?: boolean;
   onCancel?: () => void;
   onApply?(data: onApplyProps): void;
 }
@@ -129,13 +130,14 @@ function DateRangePicker({
   changeActiveMonthOnSelect = true,
   format = "MM/DD/YYYY HH:mm:ss A",
   autoApply = false,
+  isSingleSelect = false,
   onCancel,
   onApply,
 }: DateRangePickerProps) {
-  const [state, setState] = useState({
-    startDate,
-    endDate,
-    focusedInput: START_DATE as FocusedInput,
+  const [state, setState] = useState<onApplyProps>({
+    startDate: startDate ? new Date(startDate?.getTime()) : null,
+    endDate: endDate ? new Date(endDate?.getTime()) : null,
+    focusedInput: START_DATE,
   });
   const [timeState, setTimeState] = useState({
     start: getTimeFromDate(startDate),
@@ -144,9 +146,9 @@ function DateRangePicker({
 
   useEffect(() => {
     setState({
-      startDate,
-      endDate,
-      focusedInput: START_DATE as FocusedInput,
+      startDate: startDate ? new Date(startDate?.getTime()) : null,
+      endDate: endDate ? new Date(endDate?.getTime()) : null,
+      focusedInput: START_DATE,
     });
     setTimeState({
       start: getTimeFromDate(startDate),
@@ -178,8 +180,22 @@ function DateRangePicker({
     maxBookingDate,
     unavailableDates,
     changeActiveMonthOnSelect,
-    onDatesChange: handleDateChange,
+    numberOfMonths: isSingleSelect ? 1 : 2,
+    onDatesChange: isSingleSelect ? handleSingleDateChange : handleDateChange,
   });
+
+  function handleSingleDateChange(data: any) {
+    setTimeToDate({ date: data.startDate, time: timeState.start });
+    const newData: onApplyProps = {
+      startDate: data.startDate,
+      endDate: data.startDate,
+      focusedInput: START_DATE,
+    };
+    setState(newData);
+    if (autoApply && onApply) {
+      onApply(newData);
+    }
+  }
 
   function handleDateChange(data: any) {
     if (!data.focusedInput) {
@@ -229,15 +245,16 @@ function DateRangePicker({
   }
 
   const formatString = useMemo(() => {
+    if (isSingleSelect) {
+      return formatDateString({ date: state.startDate, format });
+    }
     return [
       formatDateString({ date: state.startDate, format }),
       formatDateString({ date: state.endDate, format }),
     ]
       .filter((el) => !!el)
       .join(" - ");
-  }, [format, state]);
-
-  console.log("DatePicker focusedInput", state.focusedInput);
+  }, [format, isSingleSelect, state]);
 
   return (
     <DatepickerContext.Provider
@@ -261,7 +278,7 @@ function DateRangePicker({
             key={`${month.year}-${month.month}`}
             className={classnames({
               "react-datepicker__calendar-left": i === 0,
-              "react-datepicker__calendar-right": i === 1,
+              "react-datepicker__calendar-right": isSingleSelect || i === 1,
             })}
             css={i === 0 ? styles.calendarLeft : styles.calendarRight}
           >
@@ -270,7 +287,7 @@ function DateRangePicker({
               month={month.month}
               firstDayOfWeek={firstDayOfWeek}
               showPrev={i === 0}
-              showNext={i !== 0}
+              showNext={isSingleSelect || i !== 0}
               showOutsideMonth={showOutsideMonth}
               goToPreviousMonths={goToPreviousMonths}
               goToNextMonths={goToNextMonths}
