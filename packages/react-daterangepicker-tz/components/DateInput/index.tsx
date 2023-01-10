@@ -135,8 +135,6 @@ function DateInput({
 
   const [stateDate, setStateDate] = useState(date);
 
-  console.log("datedate", date);
-
   const [inputValue, setInputValue] = useState(
     getInputValue({ startDate: date, format })
   );
