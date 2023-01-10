@@ -59,7 +59,7 @@ const styles = createStyles({
 
 interface NavButtonProps {
   type?: string;
-  children: unknown;
+  children: HTMLDivElement | any;
   onClick: () => void;
 }
 

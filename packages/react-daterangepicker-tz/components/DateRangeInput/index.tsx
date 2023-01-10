@@ -5,10 +5,10 @@ import { jsx } from "@emotion/react";
 import { useCallback } from "react";
 import { usePopper } from "react-popper";
 import DateRangePicker, { DateRangePickerProps } from "../DateRangePicker";
-import { useOnClickOutside } from "../../hooks/src";
 import { createStyles } from "../../utils/createStyles";
 import { formatDateString } from "../../utils/utils";
 import dayjs from "dayjs";
+import { useOnClickOutside } from "usehooks-ts";
 
 const cssStyles = createStyles({
   inputWrapper: {
@@ -120,9 +120,12 @@ function DateRangeInput({
   CustomInput = DefaultInput,
   popperOptions = {},
 }: DateRangeInputProps) {
-  const [referenceElement, setReferenceElement] = useState(null);
-  const [popperElement, setPopperElement] = useState(null);
-  const [arrowElement, setArrowElement] = useState(null);
+  const [referenceElement, setReferenceElement] =
+    useState<HTMLDivElement | null>(null);
+  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(
+    null
+  );
+  const [arrowElement, setArrowElement] = useState<HTMLDivElement | null>(null);
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
     placement: "bottom",
     modifiers: [

@@ -5,6 +5,7 @@
   "compilerOptions": {
     "types": ["node", "@emotion/react"],
     "noEmit": true,
-    "jsx": "react"
+    "jsx": "react",
+    "lib": ["dom", "es2015", "es2016", "es2017"]
   }
 }
